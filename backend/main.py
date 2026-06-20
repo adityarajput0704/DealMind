@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from datetime import timezone
+from fastapi.middleware.cors import CORSMiddleware
 
 import models
 from database import engine, get_db
@@ -28,7 +29,16 @@ app = FastAPI(
     version="0.3.0"
 )
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://deal-mind-virid.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # ─── Request / Response Schemas ───────────────────────────────────────────────
 
 class DealCreate(BaseModel):
