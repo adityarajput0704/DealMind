@@ -10,6 +10,11 @@ from database import engine, get_db
 from agents import run_negotiation
 from dotenv import load_dotenv
 load_dotenv()
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 
 models.Base.metadata.create_all(bind=engine)
 

@@ -12,6 +12,7 @@ function CreateDeal() {
   const [clientBudget, setClientBudget] = useState('');
   const [vendorPrice, setVendorPrice] = useState('');
   const [requirements, setRequirements] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const isFormValid =
     contractType !== '' &&
@@ -19,19 +20,58 @@ function CreateDeal() {
     vendorPrice !== '' &&
     requirements.trim() !== '';
 
-  const handleSubmit = () => {
-    if (!isFormValid) return;
+  const handleSubmit = async () => {
+    if (!isFormValid || submitting) return;
+    setSubmitting(true);
 
-    navigate('/negotiation', {
-      state: {
-        deal: {
-          contractType,
-          clientBudget: Number(clientBudget),
-          vendorPrice: Number(vendorPrice),
-          requirements,
+    try {
+      const dealResponse = await fetch('/api/deals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      },
-    });
+        body: JSON.stringify({
+          contract_type: contractType,
+          budget: Number(clientBudget),
+          vendor_target: Number(vendorPrice),
+          requirement: requirements,
+        }),
+      });
+
+      if (!dealResponse.ok) {
+        const err = await dealResponse.json();
+        throw new Error(err.detail || 'Failed to create deal');
+      }
+      const dealData = await dealResponse.json();
+
+      const sessionResponse = await fetch(`/api/deals/${dealData.id}/negotiate`, {
+        method: 'POST',
+      });
+
+      if (!sessionResponse.ok) {
+        const err = await sessionResponse.json();
+        throw new Error(err.detail || 'Failed to start negotiation session');
+      }
+      const sessionData = await sessionResponse.json();
+
+      navigate('/negotiation', {
+        state: {
+          dealId: dealData.id,
+          sessionId: sessionData.id,
+          deal: {
+            contractType,
+            clientBudget: Number(clientBudget),
+            vendorPrice: Number(vendorPrice),
+            requirements,
+          },
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'An error occurred while establishing the negotiation.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -115,9 +155,9 @@ function CreateDeal() {
             size="lg"
             fullWidth={true}
             onClick={handleSubmit}
-            disabled={!isFormValid}
+            disabled={!isFormValid || submitting}
           >
-            Start Negotiation
+            {submitting ? 'Setting up agents...' : 'Start Negotiation'}
             <ArrowRight size={18} />
           </Button>
         </Card>
