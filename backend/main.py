@@ -31,10 +31,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://deal-mind-virid.vercel.app",
-    ],
+    allow_origins=["*"],  # hackathon mode
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
