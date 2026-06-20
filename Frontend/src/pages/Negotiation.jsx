@@ -36,13 +36,15 @@ function Negotiation() {
   useEffect(() => {
     let active = true;
 
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
     async function runFlow() {
       try {
         let dId = dealId;
         let sId = sessionId;
 
         if (!dId || !sId) {
-          const dealRes = await fetch('/api/deals', {
+          const dealRes = await fetch(`${baseUrl}/api/deals`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -70,7 +72,7 @@ function Negotiation() {
           if (active) setSessionId(sId);
         }
 
-        const runRes = await fetch(`/api/sessions/${sId}/run`, { method: 'POST' });
+        const runRes = await fetch(`${baseUrl}/api/sessions/${sId}/run`, { method: 'POST' });
         if (!runRes.ok) {
           const err = await runRes.json();
           throw new Error(err.detail || 'Failed to execute negotiation');
@@ -135,7 +137,7 @@ function Negotiation() {
     if (!sessionId || settling) return;
     setSettling(true);
     try {
-      const response = await fetch(`/api/sessions/${sessionId}/settle`, {
+      const response = await fetch(`${baseUrl}/api/sessions/${sessionId}/settle`,{
         method: 'POST',
       });
       if (!response.ok) {

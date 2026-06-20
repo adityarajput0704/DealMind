@@ -20,12 +20,14 @@ function CreateDeal() {
     vendorPrice !== '' &&
     requirements.trim() !== '';
 
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
   const handleSubmit = async () => {
     if (!isFormValid || submitting) return;
     setSubmitting(true);
 
     try {
-      const dealResponse = await fetch('/api/deals', {
+      const dealResponse = await fetch(`${baseUrl}/api/deals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +46,7 @@ function CreateDeal() {
       }
       const dealData = await dealResponse.json();
 
-      const sessionResponse = await fetch(`/api/deals/${dealData.id}/negotiate`, {
+      const sessionResponse = await fetch(`${baseUrl}/api/deals/${dealData.id}/negotiate`, {
         method: 'POST',
       });
 

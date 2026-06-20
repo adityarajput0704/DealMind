@@ -13,9 +13,11 @@ function History() {
   useEffect(() => {
     let active = true;
 
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
     async function fetchHistory() {
       try {
-        const response = await fetch('/api/deals');
+        const response = await fetch(`${baseUrl}/api/deals`);
         if (!response.ok) {
           const err = await response.json();
           throw new Error(err.detail || 'Failed to fetch deals');
@@ -28,7 +30,7 @@ function History() {
 
             let rounds = [];
             try {
-              const roundsRes = await fetch(`/api/sessions/${sessionId}/rounds`);
+             const roundsRes = await fetch(`${baseUrl}/api/sessions/${sessionId}/rounds`);
               if (roundsRes.ok) {
                 rounds = await roundsRes.json();
               }
@@ -38,7 +40,7 @@ function History() {
 
             let agreement = null;
             try {
-              const agreementRes = await fetch(`/api/sessions/${sessionId}/agreement`);
+              const agreementRes = await fetch(`${baseUrl}/api/sessions/${sessionId}/agreement`);
               if (agreementRes.ok) {
                 agreement = await agreementRes.json();
               }
